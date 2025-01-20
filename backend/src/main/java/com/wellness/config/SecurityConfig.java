@@ -10,6 +10,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -18,16 +19,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .csrf().disable()
-            .authorizeHttpRequests()
-            .requestMatchers("/api/auth/**", "/h2-console/**").permitAll()
-            .anyRequest().authenticated()
-            .and()
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
-        
-        // Enable H2 Console
-        http.headers().frameOptions().disable();
+            .csrf(csrf -> csrf
+                .ignoringRequestMatchers(new AntPathRequestMatcher("/h2-console/**"))
+                .ignoringRequestMatchers(new AntPathRequestMatcher("/api/auth/**"))
+                .disable())
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
+                .anyRequest().authenticated()
+            )
+            .headers(headers -> headers.frameOptions().disable())
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            );
         
         return http.build();
     }

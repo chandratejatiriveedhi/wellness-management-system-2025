@@ -17,6 +17,7 @@
     
     <properties>
         <java.version>17</java.version>
+        <start-class>com.wellness.WellnessApplication</start-class>
     </properties>
     
     <dependencies>
@@ -77,6 +78,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
+                    <mainClass>com.wellness.WellnessApplication</mainClass>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>

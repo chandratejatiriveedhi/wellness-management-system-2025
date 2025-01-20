@@ -21,7 +21,8 @@ public class User {
     private String email;
 
     @Column(nullable = false)
-    private String profile; // ADMIN, CLIENT, TEACHER, STUDENT
+    @Enumerated(EnumType.STRING)
+    private ProfileType profile;
 
     private String location;
 }

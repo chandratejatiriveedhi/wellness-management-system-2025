@@ -14,7 +14,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
-import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 @EnableWebSecurity
@@ -23,22 +23,14 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            .cors().and()
-            .csrf(csrf -> csrf
-                .ignoringRequestMatchers(antMatcher("/h2-console/**"))
-                .disable())
+            .cors(withDefaults())
+            .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers(antMatcher("/")).permitAll()
-                .requestMatchers(antMatcher("/index.html")).permitAll()
-                .requestMatchers(antMatcher("/auth/**")).permitAll()
-                .requestMatchers(antMatcher("/h2-console/**")).permitAll()
-                .requestMatchers(antMatcher("/auth/register")).permitAll()
-                .requestMatchers(antMatcher("/auth/login")).permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             .headers(headers -> headers
                 .frameOptions()
-                .sameOrigin()
+                .disable()
             )
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)

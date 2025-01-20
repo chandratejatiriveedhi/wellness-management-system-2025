@@ -58,6 +58,15 @@
             border-left: 4px solid #007bff;
             font-family: monospace;
             white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        .error {
+            border-left-color: #dc3545;
+            color: #dc3545;
+        }
+        .success {
+            border-left-color: #28a745;
+            color: #28a745;
         }
         h2 {
             color: #333;
@@ -126,51 +135,87 @@
     <div id="response" class="response" style="display: none;"></div>
 
     <script>
+        const displayResponse = (data, success = true) => {
+            const responseDiv = document.getElementById('response');
+            responseDiv.style.display = 'block';
+            responseDiv.classList.remove('error', 'success');
+            responseDiv.classList.add(success ? 'success' : 'error');
+            
+            if (typeof data === 'object') {
+                responseDiv.textContent = JSON.stringify(data, null, 2);
+            } else {
+                responseDiv.textContent = data;
+            }
+        };
+
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
-            const responseDiv = document.getElementById('response');
-            responseDiv.style.display = 'block';
+            const data = Object.fromEntries(formData);
+            
             try {
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(Object.fromEntries(formData))
+                    body: JSON.stringify(data)
                 });
-                const data = await response.json();
-                responseDiv.textContent = JSON.stringify(data, null, 2);
-                responseDiv.style.borderColor = response.ok ? '#28a745' : '#dc3545';
+                
+                const responseData = await response.text();
+                let jsonData;
+                try {
+                    jsonData = JSON.parse(responseData);
+                } catch {
+                    jsonData = { message: responseData };
+                }
+                
+                if (response.ok) {
+                    displayResponse('Registration successful! You can now login.', true);
+                    e.target.reset();
+                } else {
+                    displayResponse(jsonData.error || 'Registration failed', false);
+                }
             } catch (error) {
-                responseDiv.textContent = 'Error: ' + error.message;
-                responseDiv.style.borderColor = '#dc3545';
+                displayResponse('Error: ' + error.message, false);
             }
         });
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const formData = new FormData(e.target);
-            const responseDiv = document.getElementById('response');
-            responseDiv.style.display = 'block';
+            const data = Object.fromEntries(formData);
+            
             try {
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify(Object.fromEntries(formData))
+                    body: JSON.stringify(data)
                 });
-                const data = await response.json();
-                responseDiv.textContent = JSON.stringify(data, null, 2);
-                responseDiv.style.borderColor = response.ok ? '#28a745' : '#dc3545';
                 
-                if (response.ok && data.token) {
-                    localStorage.setItem('token', data.token);
+                const responseData = await response.text();
+                let jsonData;
+                try {
+                    jsonData = JSON.parse(responseData);
+                } catch {
+                    jsonData = { message: responseData };
+                }
+                
+                if (response.ok) {
+                    displayResponse({
+                        message: 'Login successful!',
+                        token: jsonData.token
+                    }, true);
+                    
+                    localStorage.setItem('token', jsonData.token);
+                    e.target.reset();
+                } else {
+                    displayResponse(jsonData.error || 'Login failed', false);
                 }
             } catch (error) {
-                responseDiv.textContent = 'Error: ' + error.message;
-                responseDiv.style.borderColor = '#dc3545';
+                displayResponse('Error: ' + error.message, false);
             }
         });
     </script>

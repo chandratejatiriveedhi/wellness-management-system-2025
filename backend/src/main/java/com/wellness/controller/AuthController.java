@@ -14,7 +14,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/auth")
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class AuthController {
 
@@ -26,6 +26,21 @@ public class AuthController {
 
     @Autowired
     private JwtUtil jwtUtil;
+
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody User user) {
+        try {
+            User registeredUser = userService.register(user);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "User registered successfully");
+            response.put("username", registeredUser.getUsername());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        }
+    }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
@@ -45,21 +60,9 @@ public class AuthController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", "Invalid username or password");
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
-        }
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) {
-        try {
-            User registeredUser = userService.register(user);
-            return ResponseEntity.ok(registeredUser);
-        } catch (Exception e) {
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(errorResponse);
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "Invalid username or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
     }
 }

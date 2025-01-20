@@ -24,6 +24,8 @@ public class SecurityConfig {
                 .ignoringRequestMatchers(new AntPathRequestMatcher("/api/auth/**"))
                 .disable())
             .authorizeHttpRequests(auth -> auth
+                .requestMatchers(new AntPathRequestMatcher("/")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher("/index.html")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/h2-console/**")).permitAll()
                 .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
                 .anyRequest().authenticated()

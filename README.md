@@ -8,8 +8,6 @@ Before you begin, ensure you have the following installed:
 - Node.js (v16.x or later)
 - Java Development Kit (JDK) 17
 - Maven (v3.8.x or later)
-- PostgreSQL (v13 or later)
-- Git
 
 ## Project Structure
 
@@ -30,30 +28,22 @@ cd wellness-management-system-2025
 
 ### 2. Backend Setup
 
-1. Configure PostgreSQL:
-```sql
-CREATE DATABASE wellness_db;
-```
-
-2. Navigate to backend directory:
+1. Navigate to backend directory:
 ```bash
 cd backend
 ```
 
-3. Update database configuration:
-Edit `src/main/resources/application.properties` with your PostgreSQL credentials:
-```properties
-spring.datasource.url=jdbc:postgresql://localhost:5432/wellness_db
-spring.datasource.username=your_username
-spring.datasource.password=your_password
-```
-
-4. Build and run the backend:
+2. Build and run the backend:
 ```bash
 mvn clean install
 mvn spring-boot:run
 ```
 The backend server will start on http://localhost:8080
+
+The H2 database console will be available at http://localhost:8080/api/h2-console
+- JDBC URL: jdbc:h2:file:./data/wellness_db
+- Username: sa
+- Password: password
 
 ### 3. Frontend Setup
 
@@ -67,12 +57,7 @@ cd frontend
 npm install
 ```
 
-3. Create `.env` file:
-```bash
-REACT_APP_API_URL=http://localhost:8080/api
-```
-
-4. Start the development server:
+3. Start the development server:
 ```bash
 npm start
 ```
@@ -84,7 +69,6 @@ In the frontend directory:
 - `npm start`: Runs the app in development mode
 - `npm test`: Launches the test runner
 - `npm run build`: Builds the app for production
-- `npm run eject`: Ejects from Create React App
 
 In the backend directory:
 - `mvn spring-boot:run`: Runs the backend server
@@ -122,32 +106,21 @@ The system comes with default users for testing:
 The application implements the following security measures:
 - JWT-based authentication
 - Role-based access control
-- Password encryption using BCrypt
+- Password encryption
 - CORS configuration
 - XSS protection
 
-## API Documentation
-
-Once the backend is running, you can access the API documentation at:
-http://localhost:8080/api/swagger-ui.html
-
 ## Troubleshooting
 
-Common issues and solutions:
+1. Backend startup issues:
+   - Check if port 8080 is available
+   - Ensure Java 17 is installed correctly
+   - Verify Maven installation
 
-1. Database Connection Issues:
-   - Verify PostgreSQL is running
-   - Check database credentials
-   - Ensure database exists
-
-2. Port Conflicts:
-   - Backend: Change port in application.properties
-   - Frontend: Change port by using PORT environment variable
-
-3. Build Errors:
+2. Frontend issues:
    - Clear node_modules and reinstall packages
-   - Clear Maven cache and rebuild
-   - Check Java version compatibility
+   - Check if port 3000 is available
+   - Verify Node.js installation
 
 ## Contributing
 

@@ -3,14 +3,15 @@ package com.wellness.controller;
 import com.wellness.model.User;
 import com.wellness.security.JwtUtil;
 import com.wellness.service.UserService;
-import com.wellness.model.LoginRequest;
-import com.wellness.model.AuthResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -27,17 +28,26 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest) {
         try {
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+                new UsernamePasswordAuthenticationToken(
+                    loginRequest.get("username"), 
+                    loginRequest.get("password")
+                )
             );
 
-            final String token = jwtUtil.generateToken(loginRequest.getUsername());
+            String token = jwtUtil.generateToken(loginRequest.get("username"));
             
-            return ResponseEntity.ok(new AuthResponse(token));
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            response.put("type", "Bearer");
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("{\"error\": \"" + e.getMessage() + "\"}");
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Invalid username or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
         }
     }
 
@@ -47,7 +57,9 @@ public class AuthController {
             User registeredUser = userService.register(user);
             return ResponseEntity.ok(registeredUser);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("{\"error\": \"" + e.getMessage() + "\"}");
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 }

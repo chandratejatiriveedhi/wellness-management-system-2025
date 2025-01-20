@@ -135,6 +135,8 @@
     <div id="response" class="response" style="display: none;"></div>
 
     <script>
+        const API_URL = '';
+        
         const displayResponse = (data, success = true) => {
             const responseDiv = document.getElementById('response');
             responseDiv.style.display = 'block';
@@ -154,6 +156,7 @@
             const data = Object.fromEntries(formData);
             
             try {
+                console.log('Sending register request:', data);
                 const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: {
@@ -162,12 +165,15 @@
                     body: JSON.stringify(data)
                 });
                 
-                const responseData = await response.text();
+                console.log('Register response status:', response.status);
+                const responseText = await response.text();
+                console.log('Register response text:', responseText);
+                
                 let jsonData;
                 try {
-                    jsonData = JSON.parse(responseData);
+                    jsonData = JSON.parse(responseText);
                 } catch {
-                    jsonData = { message: responseData };
+                    jsonData = { message: responseText };
                 }
                 
                 if (response.ok) {
@@ -177,6 +183,7 @@
                     displayResponse(jsonData.error || 'Registration failed', false);
                 }
             } catch (error) {
+                console.error('Registration error:', error);
                 displayResponse('Error: ' + error.message, false);
             }
         });
@@ -187,6 +194,7 @@
             const data = Object.fromEntries(formData);
             
             try {
+                console.log('Sending login request:', data);
                 const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {
@@ -195,12 +203,15 @@
                     body: JSON.stringify(data)
                 });
                 
-                const responseData = await response.text();
+                console.log('Login response status:', response.status);
+                const responseText = await response.text();
+                console.log('Login response text:', responseText);
+                
                 let jsonData;
                 try {
-                    jsonData = JSON.parse(responseData);
+                    jsonData = JSON.parse(responseText);
                 } catch {
-                    jsonData = { message: responseData };
+                    jsonData = { message: responseText };
                 }
                 
                 if (response.ok) {
@@ -215,6 +226,7 @@
                     displayResponse(jsonData.error || 'Login failed', false);
                 }
             } catch (error) {
+                console.error('Login error:', error);
                 displayResponse('Error: ' + error.message, false);
             }
         });
